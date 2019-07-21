@@ -1,0 +1,17 @@
+<payment>
+    <opcode>0</opcode>
+    <product_id>4870</product_id>
+    <amount>500.04</amount>
+    <cf>Content field</cf>
+    <ip_address>80.80.80.80</ip_address>
+    <pan></pan>
+    <cardholder>CARDHOLDER</cardholder>
+    <exp_month></exp_month>
+    <exp_year></exp_year>
+    <cvv></cvv>
+    <token></token>
+    <user_rebill_approved>1</user_rebill_approved>
+    <user_rebill_freq>30</user_rebill_freq>
+    <user_rebill_exp>201909</user_rebill_exp>
+
+</payment>
