@@ -1,7 +1,8 @@
-import pytest
-import yaml
+"""Fixtures for payment gate sandbox."""
 import hashlib
 import xml.etree.ElementTree as ETr
+import pytest
+import yaml
 
 
 @pytest.fixture(scope="session")
@@ -28,9 +29,9 @@ def body(config, amount):
             root.find('cf').text,
             config['test_merchant1']['secret_word']
         ]).lower().encode('utf-8')
-        m = hashlib.md5()
-        m.update(string_for_signature)
-        sign = m.hexdigest()
+        md5_hash = hashlib.md5()
+        md5_hash.update(string_for_signature)
+        sign = md5_hash.hexdigest()
 
         # Paste sign and other value into template.
         amount_field = root.find('amount')
