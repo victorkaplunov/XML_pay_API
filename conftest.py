@@ -1,7 +1,9 @@
 """Fixtures for payment gate sandbox."""
 import hashlib
 import xml.etree.ElementTree as ETr
+import xml.dom.minidom
 import pytest
+import requests
 import yaml
 
 
@@ -13,44 +15,92 @@ def config():
 
 
 @pytest.fixture()
-def body(config, amount):
+def request_string(config, amount, rebill):
     """Make signed request body from XML template and data from config file."""
 
-    # Open template
-    with open("simple_payment_tmplt.xml", "r", encoding='utf8') as file:
-        tree = ETr.parse(file)
-        root = tree.getroot()
+    # Create the sign.
+    string_for_signature = ''.join([
+        str(config['test_merchant1']['merchant_id']),
+        str(config['test_merchant1']['product_id']),
+        str(amount),
+        str(config['test_merchant1']['cf']),
+        config['test_merchant1']['secret_word']
+    ]).lower().encode('utf-8')
+    md5_hash = hashlib.md5()
+    md5_hash.update(string_for_signature)
+    sign = md5_hash.hexdigest()
 
-        # Create the sign.
-        string_for_signature = ''.join([
-            str(config['test_merchant1']['merchant_id']),
-            root.find('product_id').text,
-            str(root.find('amount').text),
-            root.find('cf').text,
-            config['test_merchant1']['secret_word']
-        ]).lower().encode('utf-8')
-        md5_hash = hashlib.md5()
-        md5_hash.update(string_for_signature)
-        sign = md5_hash.hexdigest()
+    request_string = ''.join([
+        '?',
+        'opcode=0',
+        '&product_id=', config['test_merchant1']['product_id'],
+        '&amount=', amount,
+        '&pan=', config['test_card1']['pan'],
+        '&ip_address=', config['ip_address'],
+        '&cf=', config['test_merchant1']['cf'],
+        '&cardholder=', config['test_card1']['cardholder'],
+        '&exp_month=', config['test_card1']['exp_month'],
+        '&exp_year=', config['test_card1']['exp_year'],
+        '&cvv=', config['test_card1']['cvv'],
+        '&token=', sign,
+        '&user_rebill_approved=', rebill
+    ])
+    return request_string
 
-        # Paste sign and other value into template.
-        amount_field = root.find('amount')
-        amount_field.text = str(amount)
-        token = root.find('token')
-        token.text = sign
-        product_id = root.find('product_id')
-        product_id.text = str(config['test_merchant1']['product_id'])
 
-        pan = root.find('pan')
-        pan.text = str(config['test_card1']['pan'])
-        cardholder = root.find('cardholder')
-        cardholder.text = str(config['test_card1']['cardholder'])
-        exp_month = root.find('exp_month')
-        exp_month.text = str(config['test_card1']['exp_month'])
-        exp_year = root.find('exp_year')
-        exp_year.text = str(config['test_card1']['exp_year'])
-        cvv = root.find('cvv')
-        cvv.text = str(config['test_card1']['cvv'])
+@pytest.fixture()
+def simple_payment(config, request_string):
+    """
+        This function sends POST request for simple payment
+        creation and prints some useful information for debugging.
+    """
+    url = config['base_url'] + request_string
+    response = requests.post(url, verify=False)
+    root = ETr.fromstring(response.content)
+    print('POST request to {0}'.format(url))
+    print('Status code: {0}'.format(response.status_code))
+    print('RESPONSE: {0}'.format(xml.dom.minidom.parseString(response.text).toprettyxml()))
+    return root
 
-        xml_string = ETr.tostring(root, encoding='utf8', method='xml')
-        return xml_string
+
+@pytest.fixture()
+def request_string_for_rebill(config, amount, simple_payment):
+    """Make signed request body from XML template and data from config file."""
+
+    # Get payment_id
+    payment_id = simple_payment.find('extended_id').text
+
+    # Create the sign.
+    string_for_signature = ''.join([
+        str(config['test_merchant1']['merchant_id']),
+        payment_id,
+        str(amount),
+        config['test_merchant1']['secret_word']
+    ]).lower().encode('utf-8')
+    md5_hash = hashlib.md5()
+    md5_hash.update(string_for_signature)
+    sign = md5_hash.hexdigest()
+
+    request_string = ''.join([
+        '?',
+        'opcode=6',
+        '&payment_id=', payment_id,
+        '&amount=', amount,
+        '&token=', sign,
+    ])
+    return request_string
+
+
+@pytest.fixture()
+def rebill_payment(config, request_string_for_rebill):
+    """
+        This function sends POST request for rebill payment
+        creation and prints some useful information for debugging.
+    """
+    url = config['base_url'] + request_string_for_rebill
+    response = requests.post(url, verify=False)
+    root = ETr.fromstring(response.content)
+    print('POST request to {0}'.format(url))
+    print('Status code: {0}'.format(response.status_code))
+    print('RESPONSE: {0}'.format(xml.dom.minidom.parseString(response.text).toprettyxml()))
+    return root

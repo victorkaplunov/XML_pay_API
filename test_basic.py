@@ -1,20 +1,35 @@
 """Tests for payment gate sandbox."""
-import xml.etree.ElementTree as ETr
 import pytest
-import requests
 
 
-@pytest.mark.parametrize("amount", [5, 500])
-def test_success_payment(config, body):
-    """Boundary value test for success simple payment with mandatory parameters only."""
-    response = requests.post(config['base_url'], data=body, verify=False)
-    root = ETr.fromstring(response.content)
-    assert root.find('description').text != "opcode is absent!"
+@pytest.mark.parametrize("amount", ['10', '10', '10', '10', '10', '10', '10', '10', '10', '10'])
+@pytest.mark.parametrize("rebill", '0')
+def test_success_payment_(simple_payment):
+    """
+        Boundary values test for success simple payment
+        with mandatory parameters only.
+    """
+    assert simple_payment.find('status').text == "NEW", \
+        'Field "status" do not contain string "NEW".'
 
 
-@pytest.mark.parametrize("amount", [-5, 0, 4.99, 500.01, 50000000000000000000000])
-def test_unsuccess_payment(config, body):
-    """Boundary value test for unsuccessful payment with mandatory parameters only."""
-    response = requests.post(config['base_url'], data=body, verify=False)
-    root = ETr.fromstring(response.content)
-    assert root.find('status').text == "KO"
+@pytest.mark.parametrize("amount",
+                         ['-5', '-5', '0', '4.98', '4.99', '500.01',
+                          '5000000000000000000000000000000000000000000000000'])
+@pytest.mark.parametrize("rebill", '0')
+def test_unsuccess_payment(simple_payment):
+    """
+        Negative test for boundary values.
+    """
+    assert simple_payment.find('status').text != "NEW", \
+        'Field "status" contain string "NEW".'
+
+
+@pytest.mark.parametrize("amount, rebill", [('100', '1'), ('100', '1'), ('100', '1')])
+def test_rebill_payment_(rebill_payment):
+    """
+        Boundary values test for success simple payment with mandatory parameters only.
+    """
+    # rebill_payment(payment_id)?
+    assert rebill_payment.find('status').text == "REBILL_OK", \
+        'Field "status" do not contain string "REBILL_OK".'

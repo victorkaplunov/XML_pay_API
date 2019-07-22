@@ -1,13 +1,16 @@
 base_url: "https://gw.acqp.co/"
 
+ip_address: '192.168.0.1'
+
 test_card1:
-  pan: 4000000000000002
-  cardholder: CARDHOLDER
-  exp_month: 01
-  exp_year: 2020
-  cvv: 456
+  pan: '4000000000000002'
+  cardholder: 'CARDHOLDER'
+  exp_month: '12'
+  exp_year: '2020'
+  cvv: '456'
 
 test_merchant1:
-  merchant_id: 702
-  product_id: 4870
-  secret_word: sw
+  merchant_id: '702'
+  product_id: '4870'
+  secret_word: 'sw'
+  cf: 'Some operation content'
