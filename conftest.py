@@ -9,14 +9,17 @@ import yaml
 
 @pytest.fixture(scope="session")
 def config():
-    """Get data from config.yaml."""
+    """Get data from configuration file config.yaml."""
+    
     with open("config.yaml", "r") as file:
         return yaml.load(file, Loader=yaml.SafeLoader)
 
 
 @pytest.fixture()
 def request_string(config, amount, rebill):
-    """Make signed request body from XML template and data from config file."""
+    """
+        This fuction make signed request string for simple payment.
+    """
 
     # Create the sign.
     string_for_signature = ''.join([
@@ -65,7 +68,9 @@ def simple_payment(config, request_string):
 
 @pytest.fixture()
 def request_string_for_rebill(config, amount, simple_payment):
-    """Make signed request body from XML template and data from config file."""
+    """
+        This function make signed request string for rebill payment.
+    """
 
     # Get payment_id
     payment_id = simple_payment.find('extended_id').text
