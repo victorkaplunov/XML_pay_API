@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.parametrize("rebill", '0')
 def test_success_payment_(simple_payment):
     """
-        Boundary values test for success simple payment
+        Test for success simple payment
         with mandatory parameters only.
     """
     assert simple_payment.find('status').text == "NEW", \
@@ -19,7 +19,7 @@ def test_success_payment_(simple_payment):
 @pytest.mark.parametrize("rebill", '0')
 def test_unsuccess_payment(simple_payment):
     """
-        Negative test for boundary values.
+        Negative test for boundary amount values.
     """
     assert simple_payment.find('status').text != "NEW", \
         'Field "status" contain string "NEW".'
@@ -28,7 +28,7 @@ def test_unsuccess_payment(simple_payment):
 @pytest.mark.parametrize("amount, rebill", [('100', '1'), ('100', '1'), ('100', '1')])
 def test_rebill_payment_(rebill_payment):
     """
-        Boundary values test for success simple payment with mandatory parameters only.
+        Test for success rebill.
     """
     # rebill_payment(payment_id)?
     assert rebill_payment.find('status').text == "REBILL_OK", \
