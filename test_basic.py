@@ -27,6 +27,5 @@ def test_unsuccess_payment(simple_payment):
 def test_rebill_payment_(rebill_payment):
     """Test for success rebill."""
     
-    # rebill_payment(payment_id)?
     assert rebill_payment.find('status').text == "REBILL_OK", \
         'Field "status" do not contain string "REBILL_OK".'
