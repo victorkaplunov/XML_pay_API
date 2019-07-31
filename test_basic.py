@@ -16,7 +16,6 @@ def test_success_payment_(simple_payment):
                          ['-5', '-5', '0', '4.98', '4.99', '500.01',
                           '5000000000000000000000000000000000000000000000000'])
 @pytest.mark.parametrize("rebill", '0')
-@pytest.mark.xfail
 def test_unsuccess_payment(simple_payment):
     """Negative test for boundary amount values."""
     
