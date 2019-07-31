@@ -20,7 +20,7 @@ def test_unsuccess_payment(simple_payment):
     """Negative test for boundary amount values."""
     
     assert simple_payment.find('status').text != "NEW", \
-        'Field "status" contain string "NEW".'
+        'Field "status" contain string "NEW", but should not.'
 
 
 @pytest.mark.parametrize("amount, rebill", [('100', '1'), ('100', '1'), ('100', '1')])
