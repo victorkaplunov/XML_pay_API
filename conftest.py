@@ -73,7 +73,10 @@ def request_string_for_rebill(config, amount, simple_payment):
     """
 
     # Get payment_id
-    payment_id = simple_payment.find('extended_id').text
+    try:
+        payment_id = simple_payment.find('extended_id').text
+    except AttributeError:
+        print("Response do not contain 'extended_id' tag.")
 
     # Create the sign.
     string_for_signature = ''.join([
