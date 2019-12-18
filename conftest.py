@@ -18,7 +18,7 @@ def config():
 @pytest.fixture()
 def request_string(config, amount, rebill):
     """
-        This fuction make signed request string for simple payment.
+        This function make signed request string for simple payment.
     """
 
     # Create the sign.
